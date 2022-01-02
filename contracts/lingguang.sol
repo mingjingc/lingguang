@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.4.22 <0.9.0;
+import "zeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 interface IRoomRule {
     function joinThreshold(address account) external returns (bool);
 
     function proposeThreshold(address account) external returns (bool);
-}
-
-interface IRoomManageRule {
-    function openRoomThreshold(address account) external returns (bool);
 }
 
 contract Room {
@@ -90,17 +87,40 @@ contract Room {
     }
 }
 
-contract RoomManage {
+contract RoomManage is ERC20 {
     mapping(address => Room) rooms;
-    IRoomManageRule rule;
+    uint256 basefee = 10;
+    uint256 fee = 10;
+    uint256 roomAmount;
+    uint256 maxFee = 100000;
+    address myAddr = 0x8FFA8517805Be4d4a72bC830286D91Cc8b03C326;
+
+    constructor() ERC20("D", "D") {
+        _mint(myAddr, 10**8);
+    }
 
     function openRoom() external {
-        bool canOpenRoom = rule.openRoomThreshold(msg.sender);
-        if (!canOpenRoom) {
-            return;
+        // 开房间收手续费
+        fee = basefee * roomAmount;
+        if (fee > maxFee) {
+            fee = maxFee;
         }
+        transfer(address(this), fee);
 
         Room room = new Room();
         rooms[address(room)] = room;
+        roomAmount++;
     }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override {}
+
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override {}
 }
