@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "truffle": "^5.4.26",
-    "zeppelin-solidity": "^1.12.0"
+    "@openzeppelin/contracts": "^4.4.1",
+    "truffle": "^5.4.26"
   }
 }
